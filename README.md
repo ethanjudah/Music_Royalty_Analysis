@@ -2,6 +2,7 @@
 Analysis of Royalty (music) data
 
 Using the Excel workbook provided, analyse the data and create visualisations that will enable you to demonstrate the state of neighbouring rights royalties to your line manager before they meet with the board and discuss any key data stories. The board’s key concerns would include:
+
 •	How overall royalties have grown over time
 
 •	Where our royalties are come from
