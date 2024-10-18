@@ -1,23 +1,23 @@
 install.packages("readxl")
 install.packages("dplyr")
 install.packages("ggplot2")
-library(readxl)  # For reading Excel files
-library(dplyr)   # For data manipulation
-library(ggplot2) # For visualization
+library(readxl)  #reading Excel files
+library(dplyr)   #data manipulation
+library(ggplot2) #visualization
 
 Royalty_Analysis <- read_excel("Royalty_Analysis.xlsx")
 View(Royalty_Analysis)   
 
 getwd()
 
-#Define the file name
+#file name
 file_name <- "Royalty_Analysis.xlsx"
 
-#List available sheet names
+#Available sheet names
 sheet_names <- excel_sheets(file_name)
 print(sheet_names)
 
-#Load specific sheets into data frames
+#Load sheets into data frames
 royalties_df <- read_excel(file_name, sheet = "Royalties")
 accounts_df <- read_excel(file_name, sheet = "Accounts")
 works_df <- read_excel(file_name, sheet = "Works")
@@ -25,7 +25,7 @@ territory_df <- read_excel(file_name, sheet = "Territory")
 source_df <- read_excel(file_name, sheet = "Source")
 
 
-#View the first few rows of each data frame
+#View the first few rows of each df
 head(royalties_df)
 head(accounts_df)
 head(works_df)
@@ -46,29 +46,29 @@ royalties_df$territorynumber[royalties_df$territorynumber == "826A"] <- "826"
 sum(royalties_df$territorynumber == "826A", na.rm = TRUE) #no more 826A, all values converted to 826
 
 
-#Convert the final statement date to Date format
+#Convert final statement date to Date format
 royalties_df$finalstatementdate <- as.Date(royalties_df$finalstatementdate)
 
-#Check for missing values
+#Check missing values
 summary(royalties_df)
 
 #Merge Royalties and Accounts based on accountcode
 merged_df <- left_join(royalties_df, accounts_df, by = "accountcode")
 
-#Check the merged data
+#Check merged data
 head(merged_df)
 
 
 #Merge Royalties and Works based on songcode
 royalties_works_df <- left_join(royalties_df, works_df, by = "songcode")
 
-#Check the merged data
+#Check merged data
 head(royalties_works_df)
 
 install.packages("lubridate")
 library(lubridate)
 
-#Convert YearMonth to a proper date format
+#Convert YearMonth to a proper format
 royalties_df$YearMonth <- ymd(paste0(royalties_df$YearMonth, "-01"))
 
 
@@ -85,27 +85,27 @@ ggplot(royalties_growth, aes(x = YearMonth, y = total_royalties)) +
 library(lubridate)
 library(ggplot2)
 
-#Ensure YearMonth is in Date format
+#Ensure YearMonth is in correct Date format
 royalties_growth$YearMonth <- ymd(paste0(royalties_growth$YearMonth, "-01"))
 
-#Plot the data
+#Plot data
 ggplot(royalties_growth, aes(x = YearMonth, y = total_royalties)) +
-  geom_line(color = "blue", linewidth = 1) +        # Use linewidth for line thickness
+  geom_line(color = "blue", linewidth = 1) +        # Use linewidth for thickness
   geom_point(color = "red", size = 2) +             # Add points
-  geom_smooth(method = "loess", se = FALSE, color = "darkgreen") +  # Add a smooth trend line
+  geom_smooth(method = "loess", se = FALSE, color = "darkgreen") +  # Add trend line (smooth)
   labs(title = "Growth of Royalties Over Time - Publisher", 
        x = "Year-Month", 
        y = "Total Royalties (£)") +
-  scale_x_date(date_labels = "%Y-%m", date_breaks = "3 months") +   # Adjust x-axis date formatting
+  scale_x_date(date_labels = "%Y-%m", date_breaks = "3 months") +   # Adjust x axis date formatting
   theme_minimal() +                                                 # Cleaner theme
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),          # Rotate x-axis labels
-        plot.title = element_text(hjust = 0.5),                     # Center the title
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),          # Rotate x axis labels
+        plot.title = element_text(hjust = 0.5),                     # Center title
         panel.grid.minor = element_blank())                         # Remove minor gridlines
 
 
  
-#Analysis: Top-Earning Clients
-#Identify which clients are top earners, group the data by accountcode and sum the royalties.
+#Analysis: Top Earning Clients
+#ID which clients are top earners, group the data by accountcode and sum the royalties.
 #Group by accountcode and sum the net publisher share payment
 top_clients <- merged_df %>%
   group_by(accountcode) %>%
@@ -116,13 +116,13 @@ top_clients <- merged_df %>%
 #Display top 10 clients
 print(top_clients)
 
-#Visualize top 10 clients
+#Visualise top 10 clients
 ggplot(top_clients, aes(x = reorder(accountcode, -total_royalties), y = total_royalties)) +
   geom_bar(stat = "identity", fill = "steelblue", width = 0.7) +  # Add color and adjust bar width
   geom_text(aes(label = round(total_royalties, 0)), vjust = -0.3, color = "black") +  # Add labels on bars
   labs(title = "Top 5 Clients by Royalties", 
        x = "Client", 
-       y = "Total Royalties (in currency)") +  # Specify units for the y-axis
+       y = "Total Royalties (£)") +  # Add units for the y-axis
   theme_minimal() +  # Use a cleaner theme
   theme(axis.text.x = element_text(angle = 45, hjust = 1),   # Rotate x-axis labels
         plot.title = element_text(hjust = 0.5, size = 16),   # Center the title and adjust size
@@ -147,13 +147,13 @@ royalties_by_territory <- royalties_territory_df %>%
 #Top 5 territories
 print(royalties_by_territory %>% head(5))
 
-#Plot the top territories
+#Plot the territories
 ggplot(royalties_by_territory %>% head(5), aes(x = reorder(territoryname, -total_royalties), y = total_royalties)) +
   geom_bar(stat = "identity", fill = "darkorange", width = 0.7) +    # Add color and adjust bar width
   geom_text(aes(label = round(total_royalties, 0)), vjust = -0.3, color = "black", size = 4) +  # Add labels to bars
   labs(title = "Top 5 Territories by Royalties", 
        x = "Territory", 
-       y = "Total Royalties (in currency)") +   # Specify unit for y-axis (replace with actual unit)
+       y = "Total Royalties (£)") +   # Specify unit for y-axis
   theme_minimal() +   # Apply a minimalist theme
   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 12),   # Rotate and size x-axis labels
         plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),  # Center and bold the title
@@ -170,7 +170,7 @@ suspicious_accounts <- accounts_df %>% filter(suspicious == TRUE)
 #handle blanks
 suspicious_accounts <- accounts_df %>% filter(suspicious == TRUE | is.na(suspicious))
 
-#Filter deactivated works using the correct column name
+#Filter deactivated works using the right column name
 deactivated_works <- works_df %>% filter(isdeactivated == TRUE)
 
 #Merge to find suspicious royalties
@@ -181,12 +181,12 @@ deactivated_royalties <- left_join(royalties_df, deactivated_works, by = "songco
 lost_royalties_suspicious <- sum(suspicious_royalties$netpublishersharepayment, na.rm = TRUE)
 lost_royalties_deactivated <- sum(deactivated_royalties$netpublishersharepayment, na.rm = TRUE)
 
-#Print results
+#Prnt results
 cat("Total lost royalties due to suspicious accounts:", lost_royalties_suspicious, "\n")
 cat("Total lost royalties due to deactivated works:", lost_royalties_deactivated, "\n")
 
 #visualise loss to suspicious and deavctivated 
-# Create a data frame for visualization
+# Create a data frame for visualisation
 library(scales)  # For better axis formatting
 
 # Create a data frame for visualisation
@@ -200,11 +200,11 @@ ggplot(losses_df, aes(x = category, y = total_loss, fill = category)) +
   geom_bar(stat = "identity", width = 0.6, color = "black") +  # Bar chart with black borders
   geom_text(aes(label = scales::comma(total_loss)), vjust = -0.5, size = 5, fontface = "bold") +  # Values on top of bars
   scale_fill_manual(values = c("#F8766D", "#00BFC4")) +  # colors for the bars
-  scale_y_continuous(labels = scales::comma) +  # Format y-axis with commas instead of scientific notation (e)
+  scale_y_continuous(labels = scales::comma) +  # Format y-axis with commas instead of scientific notation
   labs(title = "Total Lost Royalties",
        subtitle = "Losses from Suspicious Accounts and Deactivated Works",
        x = "Category",
-       y = "Total Loss (in Currency Units)",
+       y = "Total Loss (£)",
        caption = "Source: Royalty Data") +
   theme_minimal(base_size = 15) +  # Minimalist theme with larger font size
   theme(axis.text.x = element_text(face = "bold", size = 12),  # Bold x-axis labels
@@ -410,7 +410,7 @@ royalties_by_source_summary <- royalties_by_source_summary %>%
 print("Royalties by Source:")
 print(royalties_by_source_summary)
 
-# Visualize the royalties by source
+# Visualise the royalties by source
 ggplot(royalties_by_source_summary, aes(x = reorder(royaltysource, -total_royalties), y = total_royalties, fill = royaltysource)) +
   geom_bar(stat = "identity", color = "black", width = 0.7) +  # Bar chart with black borders
   scale_fill_brewer(palette = "Set2") +  # Use a more vibrant color palette
@@ -445,14 +445,14 @@ royalties_by_territory_summary <- royalties_by_territory_summary %>%
 # Print  results
 print("Royalties by Geography:")
 print(royalties_by_territory_summary)
-# Visualize the royalties by geography
+# Visualise the royalties by geography
 install.packages("RColorBrewer")
 library(RColorBrewer)
 # Identify the top 3 geographies by total royalties
 top_3_territories <- royalties_by_territory_summary %>%
   top_n(3, wt = total_royalties)
 
-# Visualize royalties by geography
+# Visualise royalties by geography
 ggplot(royalties_by_territory_summary, aes(x = reorder(territoryname, -total_royalties), y = total_royalties, fill = territoryname)) +
   
   # Bar chart with identity and added borders
@@ -509,7 +509,7 @@ tier_distribution <- tier_distribution %>%
 print("Client Tier Distribution (Percentage):")
 print(tier_distribution)
 
-# Pie chart to visualize percentage distribution of client tiers
+# Pie chart to visualise percentage distribution of client tiers
 ggplot(tier_distribution, aes(x = "", y = percentage, fill = clienttier)) +
   geom_bar(stat = "identity", width = 1) +  # Bar chart in polar coordinates for pie chart effect
   coord_polar(theta = "y") +  # Turn the bar chart into a pie chart
